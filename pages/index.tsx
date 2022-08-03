@@ -1,9 +1,15 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
+import { client } from '../lib/client'
 import { FooterBanner, HeroBanner, Product } from '../components'
 
 
-const Home: NextPage = () => {
+interface IndexPageProps {
+  products: Product[],
+  bannerData: string
+}
+
+const Home: NextPage = ({ products, bannerData }) => {
   return (
     <>
       <div>
@@ -22,8 +28,24 @@ const Home: NextPage = () => {
           product
         ))}
       </div>
+      <FooterBanner />
     </>
   )
+}
+
+export const getServerSideProps = async () => {
+  const query = '*[_type == "product"]';
+  const products = await client.fetch(query);
+
+  const bannerQuery = '*[_type == "banner"]';
+  const bannerData = await client.fetch(bannerQuery);
+
+  return {
+    props: {
+      products,
+      bannerData
+    }
+  }
 }
 
 export default Home
